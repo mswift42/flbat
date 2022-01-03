@@ -30,19 +30,6 @@ class _BwStateState extends State<BwState> {
 
   BatteryState? _batteryState;
   StreamSubscription<BatteryState>? _batteryStateSubscription;
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Battery Widget'),
-      ),
-      body: Center(
-        child: Column(
-          children: [const Text('Battery ')],
-        ),
-      ),
-    );
-  }
 
   @override
   void initState() {
@@ -53,5 +40,51 @@ class _BwStateState extends State<BwState> {
         _batteryState = state;
       });
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Battery Widget'),
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            const Text('Battery '),
+            Text('$_batteryState'),
+            ElevatedButton(
+              onPressed: () async {
+                final batteryLevel = await _battery.batteryLevel;
+                // ignore: unawaited_futures
+                showDialog<void>(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    content: Text('Battery: $batteryLevel%'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('OK'),
+                      )
+                    ],
+                  ),
+                );
+              },
+              child: const Text('Get battery level'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (_batteryStateSubscription != null) {
+      _batteryStateSubscription!.cancel();
+    }
   }
 }
